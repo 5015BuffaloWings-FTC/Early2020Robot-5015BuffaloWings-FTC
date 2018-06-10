@@ -1,23 +1,23 @@
-/**
- * Top-level build file for ftc_app project.
- *
- * It is extraordinarily rare that you will ever need to edit this file.
- */
+apply plugin: "idea"
+
 buildscript {
+    ext.kotlin_version = '1.2.41'
+
     repositories {
-        google()
-        jcenter()
+        mavenCentral()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-// This is now required because aapt2 has to be downloaded from the
-// google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
     repositories {
-        google()
-        jcenter()
+        jcenter() 
     }
+}
+
+subprojects {
+    version = '1.0-SNAPSHOT'
 }

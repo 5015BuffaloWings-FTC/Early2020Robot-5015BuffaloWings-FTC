@@ -1,2 +1,2 @@
-include ':FtcRobotController'
-include ':TeamCode'
+rootProject.name = 'motion-planner'
+include ':SplineLib'
