@@ -1,19 +1,16 @@
 package com.acmerobotics.roadrunner.trajectory
 
-import com.acmerobotics.roadrunner.geometry.Pose2d
-import com.acmerobotics.roadrunner.geometry.Vector2d
+import com.acmerobotics.roadrunner.Pose2d
+import com.acmerobotics.roadrunner.Vector2d
 import com.acmerobotics.roadrunner.path.LineSegment
 import com.acmerobotics.roadrunner.path.Path
-import com.acmerobotics.roadrunner.path.QuinticSpline
+import com.acmerobotics.roadrunner.path.QuinticSplineSegment
 import com.acmerobotics.roadrunner.path.heading.ConstantInterpolator
 import com.acmerobotics.roadrunner.path.heading.HeadingInterpolator
 import com.acmerobotics.roadrunner.path.heading.TangentInterpolator
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryConstraints
 import com.acmerobotics.roadrunner.util.Angle
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
  * Easy-to-use builder for creating [Trajectory] instances.
@@ -22,10 +19,10 @@ import kotlin.math.sin
  * @param globalConstraints global drive constraints (overridable for specific segments)
  * @param resolution resolution used for path-based segments (see [PathTrajectorySegment])
  */
-class TrajectoryBuilder @JvmOverloads constructor(
-    startPose: Pose2d,
-    private val globalConstraints: DriveConstraints,
-    private val resolution: Double = 0.25
+open class TrajectoryBuilder @JvmOverloads constructor(
+        startPose: Pose2d,
+        private val globalConstraints: DriveConstraints,
+        private val resolution: Int = 250
 ) {
     private var currentPose: Pose2d = startPose
     private val trajectorySegments = mutableListOf<TrajectorySegment>()
@@ -56,18 +53,10 @@ class TrajectoryBuilder @JvmOverloads constructor(
      * @param angle angle to turn by (relative to the current heading)
      * @param constraintsOverride turn-specific drive constraints
      */
+    // TODO: support turns that are greater than 180deg?
     @JvmOverloads
     fun turn(angle: Double, constraintsOverride: DriveConstraints? = null): TrajectoryBuilder {
-        if (composite) {
-            closeComposite()
-        }
-
-        val constraints = constraintsOverride ?: globalConstraints
-        val pointTurn = PointTurn(currentPose, angle, constraints)
-        trajectorySegments.add(pointTurn)
-        currentPose = Pose2d(currentPose.pos(), Angle.norm(currentPose.heading + angle))
-
-        return this
+        return turnTo(Angle.norm(currentPose.heading + angle), constraintsOverride)
     }
 
     /**
@@ -78,15 +67,24 @@ class TrajectoryBuilder @JvmOverloads constructor(
      */
     @JvmOverloads
     fun turnTo(heading: Double, constraintsOverride: DriveConstraints? = null): TrajectoryBuilder {
-        val ccwTurnAngle = Angle.norm(heading - currentPose.heading)
-        val turnAngle = if (ccwTurnAngle <= PI) {
-            ccwTurnAngle
-        } else {
-            Angle.norm(currentPose.heading - heading)
+        if (composite) {
+            closeComposite()
         }
 
-        return turn(turnAngle, constraintsOverride)
+        val constraints = constraintsOverride ?: globalConstraints
+        val pointTurn = PointTurn(currentPose, heading, constraints)
+        trajectorySegments.add(pointTurn)
+        currentPose = Pose2d(currentPose.pos(), heading)
+
+        return this
     }
+
+    /**
+     * Turns to face a position.
+     *
+     * @param pos position to face
+     */
+    fun face(pos: Vector2d) = turnTo((pos - currentPose.vector).angle())
 
     /**
      * Adds a line path segment.
@@ -96,11 +94,7 @@ class TrajectoryBuilder @JvmOverloads constructor(
      * @param constraintsOverride line-specific drive constraints
      */
     @JvmOverloads
-    fun lineTo(
-        pos: Vector2d,
-        interpolator: HeadingInterpolator = TangentInterpolator(),
-        constraintsOverride: TrajectoryConstraints? = null
-    ): TrajectoryBuilder {
+    fun lineTo(pos: Vector2d, interpolator: HeadingInterpolator = TangentInterpolator(), constraintsOverride: TrajectoryConstraints? = null): TrajectoryBuilder {
         val postBeginComposite = if (!interpolator.respectsDerivativeContinuity() && composite) {
             closeComposite()
             true
@@ -143,10 +137,9 @@ class TrajectoryBuilder @JvmOverloads constructor(
      */
     fun forward(distance: Double): TrajectoryBuilder {
         return lineTo(currentPose.pos() + Vector2d(
-            distance * cos(currentPose.heading),
-            distance * sin(currentPose.heading)
-        )
-        )
+                distance * Math.cos(currentPose.heading),
+                distance * Math.sin(currentPose.heading)
+        ))
     }
 
     /**
@@ -168,10 +161,9 @@ class TrajectoryBuilder @JvmOverloads constructor(
      */
     fun strafeLeft(distance: Double): TrajectoryBuilder {
         return strafeTo(currentPose.pos() + Vector2d(
-            distance * cos(currentPose.heading + PI / 2),
-            distance * sin(currentPose.heading + PI / 2)
-        )
-        )
+                distance * Math.cos(currentPose.heading + Math.PI / 2),
+                distance * Math.sin(currentPose.heading + Math.PI / 2)
+        ))
     }
 
     /**
@@ -191,11 +183,7 @@ class TrajectoryBuilder @JvmOverloads constructor(
      * @param constraintsOverride spline-specific constraints
      */
     @JvmOverloads
-    fun splineTo(
-        pose: Pose2d,
-        interpolator: HeadingInterpolator = TangentInterpolator(),
-        constraintsOverride: TrajectoryConstraints? = null
-    ): TrajectoryBuilder {
+    fun splineTo(pose: Pose2d, interpolator: HeadingInterpolator = TangentInterpolator(), constraintsOverride: TrajectoryConstraints? = null): TrajectoryBuilder {
         val postBeginComposite = if (!interpolator.respectsDerivativeContinuity() && composite) {
             closeComposite()
             true
@@ -205,15 +193,24 @@ class TrajectoryBuilder @JvmOverloads constructor(
 
         val constraints = constraintsOverride ?: this.globalConstraints
         val derivMag = (currentPose.pos() distanceTo pose.pos())
-        val startWaypoint = QuinticSpline.Waypoint(currentPose.x, currentPose.y,
-            derivMag * cos(currentPose.heading), derivMag * sin(currentPose.heading))
-        val endWaypoint = QuinticSpline.Waypoint(pose.x, pose.y,
-            derivMag * cos(pose.heading), derivMag * sin(pose.heading))
-
         val spline = if (reversed) {
-            Path(QuinticSpline(endWaypoint, startWaypoint), interpolator, true)
+            Path(
+                    QuinticSplineSegment(
+                            QuinticSplineSegment.Waypoint(pose.x, pose.y, derivMag * Math.cos(pose.heading), derivMag * Math.sin(pose.heading)),
+                            QuinticSplineSegment.Waypoint(currentPose.x, currentPose.y, derivMag * Math.cos(currentPose.heading), derivMag * Math.sin(currentPose.heading))
+                    ),
+                    interpolator,
+                    true
+            )
         } else {
-            Path(QuinticSpline(startWaypoint, endWaypoint), interpolator, false)
+            Path(
+                    QuinticSplineSegment(
+                            QuinticSplineSegment.Waypoint(currentPose.x, currentPose.y, derivMag * Math.cos(currentPose.heading), derivMag * Math.sin(currentPose.heading)),
+                            QuinticSplineSegment.Waypoint(pose.x, pose.y, derivMag * Math.cos(pose.heading), derivMag * Math.sin(pose.heading))
+                    ),
+                    interpolator,
+                    false
+            )
         }
         if (composite) {
             paths.add(spline)
