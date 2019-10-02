@@ -15,7 +15,25 @@ import com.qualcomm.robotcore.util.Range;
  * When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
  *
- * Lets hope this shows up on git!
+ *                     TeleOP Controls
+ *       _=====_                               _=====_
+ *      / _____ \                             / _____ \
+ *    /.-'_____'-.---------------------------.-'_____'-\
+ *   /   |     |  '.        L O G I        .'  |     |   \
+ *  / ___| /|\ |___ \                     / ___| (Y) |___ \
+ * / |      |      | ;  __           _   ; |             | ;
+ * | | <---   ---> | | |__|         |_|  | |(X)       (B)| |
+ * | |___   |   ___| ; SELECT      START ; |___       ___| ;
+ * |\    | \|/ |    /  _     ___      _   \    | (A) |    /|
+ * | \   |_____|  .','" "', |___|  ,'" "', '.  |_____|  .' |
+ * |  '-.______.-' /       \ANALOG/       \  '-._____.-'   |
+ * |               |       |------|       |                |
+ * |              /\       /      \       /\               |
+ * |             /  '.___.'        '.___.'  \              |
+ * |            /                            \             |
+ *  \          /                              \           /
+ *   \________/                                \_________/
+ *                         Gamepad 1
  */
 
 @TeleOp(name="TeleOP - Iterative")
@@ -30,11 +48,6 @@ public class TeleOP extends OpMode
     @Override
     public void init() {
         robot.robotHardwareMapInit(hardwareMap);
-        robot.runWithOutEncoders();
-        robot.leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     /*
@@ -56,10 +69,6 @@ public class TeleOP extends OpMode
      */
     @Override
     public void loop() {
-        robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
     }
 
     /*

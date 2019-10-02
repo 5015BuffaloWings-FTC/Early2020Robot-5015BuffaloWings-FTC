@@ -10,8 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  * This class is used to define all the specific hardware for a single robot.
  * In this case that robot is a Mecanum driven Robot.
- * Mecanum robots utilize 4 motor driven wheels. Each of these wheels 
- * See PushbotTeleopTank_Iterative and others classes starting with "Pushbot" for usage examples.
+ * Mecanum robots utilize 4 motor driven wheels.
  *
  *
  */
