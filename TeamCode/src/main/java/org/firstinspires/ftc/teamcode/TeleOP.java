@@ -46,8 +46,10 @@ public class TeleOP extends OpMode
      * Code to run ONCE when the driver hits INIT
      */
     @Override
-    public void init() {
+    public void init()
+    {
         robot.robotHardwareMapInit(hardwareMap);
+        robot.teleOpInit();
     }
 
     /*
@@ -69,6 +71,10 @@ public class TeleOP extends OpMode
      */
     @Override
     public void loop() {
+        robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
     }
 
     /*
