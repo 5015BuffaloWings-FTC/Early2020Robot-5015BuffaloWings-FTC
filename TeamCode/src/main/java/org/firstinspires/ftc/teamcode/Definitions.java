@@ -42,5 +42,10 @@ public class Definitions
         rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
+
+    void autoInit()
+    {
+
+    }
 }
 
