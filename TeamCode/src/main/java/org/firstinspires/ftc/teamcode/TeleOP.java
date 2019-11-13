@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.util.Range;
  *                         Gamepad 1
  */
 
-@TeleOp(name="TeleOP - Iterative")
+@TeleOp(name="TeleOP")
 
 public class TeleOP extends OpMode
 {

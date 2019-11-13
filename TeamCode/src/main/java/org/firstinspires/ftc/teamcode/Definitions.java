@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * In this case that robot is a Mecanum driven Robot.
  * Mecanum robots utilize 4 motor driven wheels.
  *
- *
  */
 public class Definitions
 {
@@ -21,6 +20,8 @@ public class Definitions
     public DcMotor leftFrontMotor;
     public DcMotor rightBackMotor;
     public DcMotor rightFrontMotor;
+    public DcMotor leftIntake;
+    public DcMotor rightIntake;
 
     public void robotHardwareMapInit(HardwareMap Map)
     {
@@ -28,6 +29,8 @@ public class Definitions
         leftFrontMotor = Map.dcMotor.get("leftFrontMotor");
         rightBackMotor = Map.dcMotor.get("rightBackMotor");
         rightFrontMotor = Map.dcMotor.get("rightFrontMotor");
+        //leftIntake = Map.dcMotor.get("leftIntake");
+        //rightIntake = Map.dcMotor.get("rightIntake");
     }
 
     void teleOpInit()
@@ -38,14 +41,9 @@ public class Definitions
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
-
-    void autoInit()
-    {
-
     }
 }
 
