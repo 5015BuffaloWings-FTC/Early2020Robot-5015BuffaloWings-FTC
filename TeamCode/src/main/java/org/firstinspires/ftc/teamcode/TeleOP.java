@@ -78,26 +78,26 @@ public class TeleOP extends OpMode
         robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
         robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
 
-        //Intake
-        if(gamepad1.dpad_up || gamepad1.dpad_down)
-        {
-            if(gamepad1.dpad_down)
-            {
-                robot.leftIntake.setPower(1);
-                robot.rightIntake.setPower(1);
-            }
-            else
-            {
-                robot.leftIntake.setPower(-1);
-                robot.rightIntake.setPower(-1);
-            }
-
-        }
-        else
-        {
-            robot.leftIntake.setPower(0);
-            robot.rightIntake.setPower(0);
-        }
+//        //Intake
+//        if(gamepad1.dpad_up || gamepad1.dpad_down)
+//        {
+//            if(gamepad1.dpad_down)
+//            {
+//                robot.leftIntake.setPower(1);
+//                robot.rightIntake.setPower(1);
+//            }
+//            else
+//            {
+//                robot.leftIntake.setPower(-1);
+//                robot.rightIntake.setPower(-1);
+//            }
+//
+//        }
+//        else
+//        {
+//            robot.leftIntake.setPower(0);
+//            robot.rightIntake.setPower(0);
+//        }
     }
 
     /*
