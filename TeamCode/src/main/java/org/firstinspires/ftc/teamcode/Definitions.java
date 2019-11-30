@@ -50,6 +50,9 @@ public class Definitions
 //        leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 //        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
     }
-}//2240 ticks Aaed4ln/////AAABmS8KgU/Rvk8jpcgMg/A8+Iop8Zc9/OW+2Cs/fUVcQ83W1DCtxB+B9mgxrXp6l3UpeQi3TsPOOkJEaFKm1TJTuIe7RjPTWBMZLsY+YFQHjkb/0b2o0MRZfUV0rCMc/JcTDjz2e2s4dkhdx+EZt/uFQhOaYHV7jQplXiQTzFgv3jwADOEzdf7xzgehFTxj/p/IVxURKeHkcKRNxghiwtrBSC/t+E8+9se/oHe2eejxAtOltuwGsN0XPmA/Cmq6+IAgltLm/KQXo84VsesCQSb41AamATz9aKoLEpWYPP5qRl9fetXMUwvpmtijN6Qv9sHtABApOCv1GMSiaos3Unu6STz5jznJJbfSI7lnTR8sVQls
 
+    void autoInit()
+    {
 
+    }
+}
