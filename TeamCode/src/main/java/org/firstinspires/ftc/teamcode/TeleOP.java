@@ -73,10 +73,11 @@ public class TeleOP extends OpMode
     public void loop()
     {
         //Robot Movement
-        robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
         robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
         robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+
 
 //        //Intake
 //        if(gamepad1.dpad_up || gamepad1.dpad_down)
@@ -98,6 +99,11 @@ public class TeleOP extends OpMode
 //            robot.leftIntake.setPower(0);
 //            robot.rightIntake.setPower(0);
 //        }
+        telemetry.addData("leftBackMotor", robot.leftBackMotor.getCurrentPosition());
+        telemetry.addData("leftBackMotor", robot.leftFrontMotor.getCurrentPosition());
+        telemetry.addData("leftBackMotor", robot.rightBackMotor.getCurrentPosition());
+        telemetry.addData("leftBackMotor", robot.rightFrontMotor.getCurrentPosition());
+        telemetry.update();
     }
 
     /*

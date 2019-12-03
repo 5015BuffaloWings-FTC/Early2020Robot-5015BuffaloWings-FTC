@@ -51,7 +51,6 @@ public class Auto extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
-    static final double     STRAFE_SPEED            = 0.5;
 
     @Override
     public void runOpMode() {
@@ -91,8 +90,11 @@ public class Auto extends LinearOpMode {
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         //encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         //encoderDrive(TURN_SPEED,   20, -20, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(STRAFE_SPEED, 20, 4);
-        encoderDrive(STRAFE_SPEED, -20, 4);
+        encoderDrive(DRIVE_SPEED, 20, 20, 4);
+        encoderDrive(DRIVE_SPEED, -20, -20, 4);
+        encoderStrafe(0.5, 20, 4);
+        encoderStrafe(-0.5, 20, 4);
+        //encoderDrive(STRAFE_SPEED, -20, 4);
         //encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         telemetry.addData("Path", "Complete");
@@ -182,9 +184,9 @@ public class Auto extends LinearOpMode {
         }
     }
 
-    public void encoderDrive(double speed, double distance, double timeoutS) {
+    public void encoderStrafe(double speed, double distance, double timeoutS) {
 
-        //Distance decides direction. + is right. - is left.
+        //Speed decides direction. + is right. - is left.
 
         int newLeftBackTarget;
         int newLeftFrontTarget;
@@ -195,14 +197,14 @@ public class Auto extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            if(distance > 0)
+            if(speed > 0)
             {
                 robot.leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
                 robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
                 robot.rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
                 robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             }
-            else if(distance < 0)
+            else if(speed < 0)
             {
                 robot.leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
                 robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
