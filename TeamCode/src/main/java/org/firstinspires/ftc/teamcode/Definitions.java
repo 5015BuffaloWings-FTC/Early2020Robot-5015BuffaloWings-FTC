@@ -20,8 +20,13 @@ public class Definitions
     public DcMotor leftFrontMotor;
     public DcMotor rightBackMotor;
     public DcMotor rightFrontMotor;
-//    public DcMotor leftIntake;
-//    public DcMotor rightIntake;
+    public DcMotor leftIntakeMotor;
+    public DcMotor rightIntakeMotor;
+    public DcMotor liftArmMotor;
+    public Servo gripServo;
+    public Servo rollServo;
+    public Servo pitchServo;
+
 
     public void robotHardwareMapInit(HardwareMap Map)
     {
@@ -29,9 +34,12 @@ public class Definitions
         leftFrontMotor = Map.dcMotor.get("leftFrontMotor");
         rightFrontMotor = Map.dcMotor.get("rightFrontMotor");
         rightBackMotor = Map.dcMotor.get("rightBackMotor");
-
-//        leftIntake = Map.dcMotor.get("leftIntake");
-//        rightIntake = Map.dcMotor.get("rightIntake");
+        leftIntakeMotor = Map.dcMotor.get("leftIntakeMotor");
+        rightIntakeMotor = Map.dcMotor.get("rightIntakeMotor");
+        liftArmMotor = Map.dcMotor.get("liftArmMotor");
+        gripServo = Map.servo.get("gripServo");
+        rollServo = Map.servo.get("rollServo");
+        pitchServo = Map.servo.get("pitchServo");
     }
 
     void teleOpInit()
@@ -40,19 +48,15 @@ public class Definitions
         leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        rightIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        //This sets the robot to drive straight by default
         leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-//        leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
-//        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    void autoInit()
-    {
-
-    }
 }
