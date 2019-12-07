@@ -84,6 +84,11 @@ public class TeleOP extends OpMode
         if(gamepad1.right_bumper)
             robot.rightIntakeMotor.setPower(1);
 
+        switch(r)
+        {
+
+        }
+
 //        if(gamepad2.left_stick_y == 0)
 //        {
 //            robot.liftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
