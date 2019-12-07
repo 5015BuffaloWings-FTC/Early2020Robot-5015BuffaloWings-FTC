@@ -27,6 +27,17 @@ public class Definitions
     public Servo rollServo;
     public Servo pitchServo;
 
+    public final int LIFTARMMOTORMAXPOSITION = 1500;
+    public final int LIFTARMMOTORMINPOSITION = 500;
+    public final int LIFTARMMOTORRESETPOSITION = 500;
+    public int liftArmMotorLevelCount = 0;
+    public final int LIFTARMMOTORLEVEL1POSITION = 600;
+    public final int LIFTARMMOTORLEVEL2POSITION = 600;
+    public final int LIFTARMMOTORLEVEL3POSITION = 600;
+    public final int LIFTARMMOTORLEVEL4POSITION = 600;
+    public final int LIFTARMMOTORLEVEL5POSITION = 600;
+
+
 
     public void robotHardwareMapInit(HardwareMap Map)
     {
@@ -50,13 +61,16 @@ public class Definitions
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
         //This sets the robot to drive straight by default
         leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
 }
