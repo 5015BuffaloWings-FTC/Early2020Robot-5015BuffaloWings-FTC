@@ -34,7 +34,69 @@ import com.qualcomm.robotcore.util.Range;
  * |            /                            \             |
  *  \          /                              \           /
  *   \________/                                \_________/
- *                         Gamepad 1
+ *                         Gamepad 1:
+ *
+ * gamepad1.dpad_up :
+ * gamepad1.dpad_left :
+ * gamepad1.dpad_right :
+ * gamepad1.dpad_down :
+ * gamepad1.a :
+ * gamepad1.x :
+ * gamepad1.b :
+ * gamepad1.y :
+ * gamepad1.left_trigger : Left Intake Motor set to OUTTAKE
+ * gamepad1.left_bumper : Left Intake Motor set to INTAKE
+ * gamepad1.right_trigger : Right Intake Motor set to OUTTAKE
+ * gamepad1.right_bumper : Right Intake Motor se to INTAKE
+ * gamepad1.left_stick_y : Robot drive Forward || Backward
+ * gamepad1.left_stick_x : Robot strafe Left || Right
+ * gamepad1.right_stick_y :
+ * gamepad1.right_stick_x : Robot rotate Counter Clockwise || Clockwise
+ * gamepad1.left_stick_button :
+ * gamepad1.right_stick_button :
+ * gamepad1.start :
+ * gamepad1.back :
+ *
+ *                      TeleOP Controls
+ *        _=====_                               _=====_
+ *       / _____ \                             / _____ \
+ *     /.-'_____'-.---------------------------.-'_____'-\
+ *    /   |     |  '.        L O G I        .'  |     |   \
+ *   / ___| /|\ |___ \                     / ___| (Y) |___ \
+ *  / |      |      | ;  __           _   ; |             | ;
+ *  | | <---   ---> | | |__|         |_|  | |(X)       (B)| |
+ *  | |___   |   ___| ; SELECT      START ; |___       ___| ;
+ *  |\    | \|/ |    /  _     ___      _   \    | (A) |    /|
+ *  | \   |_____|  .','" "', |___|  ,'" "', '.  |_____|  .' |
+ *  |  '-.______.-' /       \ANALOG/       \  '-._____.-'   |
+ *  |               |       |------|       |                |
+ *  |              /\       /      \       /\               |
+ *  |             /  '.___.'        '.___.'  \              |
+ *  |            /                            \             |
+ *   \          /                              \           /
+ *    \________/                                \_________/
+ *                          Gamepad 2
+ *
+ * gamepad2.dpad_up :
+ * gamepad2.dpad_left :
+ * gamepad2.dpad_right :
+ * gamepad2.dpad_down :
+ * gamepad2.a :
+ * gamepad2.x :
+ * gamepad2.b :
+ * gamepad2.y :
+ * gamepad2.left_trigger :
+ * gamepad2.left_bumper :
+ * gamepad2.right_trigger :
+ * gamepad2.right_bumper :
+ * gamepad2.left_stick_y :
+ * gamepad2.left_stick_x :
+ * gamepad2.right_stick_y : Lift Arm Motor Counter Clockwise || Clockwise
+ * gamepad2.right_stick_x :
+ * gamepad2.left_stick_button :
+ * gamepad2.right_stick_button :
+ * gamepad2.start :
+ * gamepad2.back :
  */
 
 @TeleOp(name="TeleOP")
@@ -96,17 +158,22 @@ public class TeleOP extends OpMode
             robot.rightIntakeMotor.setPower(0);
         }
 
-        if(gamepad1.y)
+        if(gamepad1.y || gamepad1.a)
         {
-            robot.leftFoundationServo.setPosition(robot.LEFTFOUNDATIONSERVODOWNPOSITION);
-            robot.rightFoundationServo.setPosition(robot.RIGHTFOUNDATIONSERVODOWNPOSITION);
+            if (gamepad1.y) {
+                robot.leftFoundationServo.setPower(1);
+                robot.rightFoundationServo.setPower(1);
+            }
+            if (gamepad1.a) {
+                robot.leftFoundationServo.setPower(-1);
+                robot.rightFoundationServo.setPower(-1);
+            }
         }
         else
         {
-            robot.leftFoundationServo.setPosition(robot.LEFTFOUNDATIONSERVORESETPOSITION);
-            robot.rightFoundationServo.setPosition(robot.RIGHTFOUNDATIONSERVORESETPOSITION);
+            robot.leftFoundationServo.setPower(0);
+            robot.rightFoundationServo.setPower(0);
         }
-
 //        if(gamepad2.left_stick_y == 0)
 //        {
 //            robot.liftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -169,7 +236,7 @@ public class TeleOP extends OpMode
 //            robot.liftArmMotor.setPower(gamepad2.left_stick_y);
 //        }
 
-        robot.liftArmMotor.setPower(gamepad2.left_stick_y);
+        robot.liftArmMotor.setPower(gamepad2.right_stick_y);
 
         telemetry.addData("liftArmLevelCount", robot.liftArmMotorLevelCount);
         telemetry.addData("leftBackMotor", robot.leftBackMotor.getCurrentPosition());
@@ -180,8 +247,6 @@ public class TeleOP extends OpMode
         telemetry.addData("pitchServo", robot.pitchServo.getPosition());
         telemetry.addData("rollServo", robot.rollServo.getPosition());
         telemetry.addData("gripServo", robot.gripServo.getPosition());
-        telemetry.addData("leftFoundationServo", robot.leftFoundationServo.getPosition());
-        telemetry.addData("rightFoundationServo", robot.rightFoundationServo.getPosition());
         telemetry.update();
     }
 

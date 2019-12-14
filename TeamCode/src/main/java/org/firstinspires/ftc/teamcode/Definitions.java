@@ -29,8 +29,8 @@ public class Definitions
     public Servo gripServo;
     public Servo rollServo;
     public Servo pitchServo;
-    public Servo leftFoundationServo;
-    public Servo rightFoundationServo;
+    public CRServo leftFoundationServo;
+    public CRServo rightFoundationServo;
 
     public int liftArmMotorLevelCount = 0;
     public final int LIFTARMMOTORMAXPOSITION = 1500;
@@ -42,10 +42,10 @@ public class Definitions
     public final int LIFTARMMOTORLEVEL4POSITION = 600;
     public final int LIFTARMMOTORLEVEL5POSITION = 600;
 
-    public final double LEFTFOUNDATIONSERVODOWNPOSITION = 0.5;
-    public final double RIGHTFOUNDATIONSERVODOWNPOSITION = 0.5;
-    public final double LEFTFOUNDATIONSERVORESETPOSITION = 0.1;
-    public final double RIGHTFOUNDATIONSERVORESETPOSITION = 0.1;
+    public final double LEFTFOUNDATIONSERVODOWNPOSITION = 0;
+    public final double RIGHTFOUNDATIONSERVODOWNPOSITION = 0;
+    public final double LEFTFOUNDATIONSERVORESETPOSITION = 0.5;
+    public final double RIGHTFOUNDATIONSERVORESETPOSITION = 0.5;
 
     public final double WHEELDIAMETER = 3.54331;
 
@@ -64,8 +64,8 @@ public class Definitions
         gripServo = Map.servo.get("gripServo");
         rollServo = Map.servo.get("rollServo");
         pitchServo = Map.servo.get("pitchServo");
-        leftFoundationServo = Map.servo.get("leftFoundationServo");
-        rightFoundationServo = Map.servo.get("rightFoundationServo");
+        leftFoundationServo = Map.crservo.get("leftFoundationServo");
+        rightFoundationServo = Map.crservo.get("rightFoundationServo");
     }
 
     void teleOpInit()
@@ -88,13 +88,11 @@ public class Definitions
 
         //This sets the robot to drive straight by default
         leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        leftFoundationServo.setPosition(LEFTFOUNDATIONSERVORESETPOSITION);
-        rightFoundationServo.setPosition(RIGHTFOUNDATIONSERVORESETPOSITION);
+        leftFoundationServo.setDirection(CRServo.Direction.REVERSE);
     }
 
 }
