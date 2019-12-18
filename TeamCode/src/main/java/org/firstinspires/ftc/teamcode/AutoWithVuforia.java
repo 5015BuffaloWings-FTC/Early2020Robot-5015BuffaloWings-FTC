@@ -48,36 +48,18 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * @see VuforiaTrackableDefaultListener
  * see  skystone/doc/tutorial/FTC_FieldCoordinateSystemDefinition.pdf
  *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
- *
- * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
- * is explained below.
  */
 
-@Autonomous
-        (name="SKYSTONE Vuforia Nav Webcam", group ="Concept")
+@Autonomous(name="Vuforia Skystone Navigation")
 
-public class ConceptVuforiaSkyStoneNavigationWebcam extends LinearOpMode {
+public class AutoWithVuforia extends LinearOpMode {
 
-    // IMPORTANT: If you are using a USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;//Selects Webcam as default camera
+    private static final boolean PHONE_IS_PORTRAIT = false;//Keeps the phone orientated Vertically. This was suggested by the SDK
 
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-    private static final String VUFORIA_KEY =
-            "AXtFr3H/////AAABmdesNJ4h10A/jsUUQYg3iZYNuybZP+xSL1rgtKZGv/eza25sSNgwWw0ZFXNVFcMED6F3OQ6RHuFGYMB58rsaDkJ5GbM7roSrP1xO0cKgkqfiBNrtN5Mi0CCSKoTKpyAuT6be8LQofpRgjpqevCkljaPPpUVVx9KWkYk7PE39YuABgbqJbh+9vHKYsfAIETxvXXxmY6rgqa84SE7BUVCB/9XeITffoYPHbr+LSM/NOps2wpc0TAIHswCBDoM5+5xLKVteViUng6d9vdWClFwFkq6VJ1vgiQxvS7i4EklqDbcJlvoqtg2RY7Kb5fc6qYml8Ab5aqJJ+Uj+ATBKlajN2jp1FhNUWMand/JgNj9sUsS6";
+    Definitions robot = new Definitions();//Create object of the definition class. This allows us to access
+
+    private static final String VUFORIA_KEY = "AXtFr3H/////AAABmdesNJ4h10A/jsUUQYg3iZYNuybZP+xSL1rgtKZGv/eza25sSNgwWw0ZFXNVFcMED6F3OQ6RHuFGYMB58rsaDkJ5GbM7roSrP1xO0cKgkqfiBNrtN5Mi0CCSKoTKpyAuT6be8LQofpRgjpqevCkljaPPpUVVx9KWkYk7PE39YuABgbqJbh+9vHKYsfAIETxvXXxmY6rgqa84SE7BUVCB/9XeITffoYPHbr+LSM/NOps2wpc0TAIHswCBDoM5+5xLKVteViUng6d9vdWClFwFkq6VJ1vgiQxvS7i4EklqDbcJlvoqtg2RY7Kb5fc6qYml8Ab5aqJJ+Uj+ATBKlajN2jp1FhNUWMand/JgNj9sUsS6";
 
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
@@ -297,7 +279,7 @@ public class ConceptVuforiaSkyStoneNavigationWebcam extends LinearOpMode {
         // CONSEQUENTLY do not put any driving commands in this loop.
         // To restore the normal opmode structure, just un-comment the following line:
 
-        // waitForStart();
+        waitForStart();
 
         // Note: To use the remote camera preview:
         // AFTER you hit Init on the Driver Station, use the "options menu" to select "Camera Stream"
