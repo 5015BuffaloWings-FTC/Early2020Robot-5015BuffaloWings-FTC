@@ -136,20 +136,30 @@ public class TeleOP extends OpMode
     public void loop()
     {
         //Robot Movement
-        robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-        robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
-
-        if(gamepad1.left_bumper || gamepad1.right_bumper || (gamepad1.left_trigger != 0) || (gamepad1.right_trigger != 0))
+        if(!gamepad1.b)
         {
-            if(gamepad1.left_bumper)
+            robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.rightBackMotor.setPower(Range.clip((-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.rightFrontMotor.setPower(Range.clip((-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        }
+        else
+        {
+            robot.leftBackMotor.setPower(Range.clip(0.5 * (gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.leftFrontMotor.setPower(Range.clip(0.5 * (gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.rightBackMotor.setPower(Range.clip(0.5 * (-gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+            robot.rightFrontMotor.setPower(Range.clip(0.5 * (-gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
+        }
+
+        if(gamepad1.left_bumper || gamepad1.right_bumper || (gamepad1.left_trigger != 0) || (gamepad1.right_trigger != 0) || gamepad2.left_bumper || gamepad2.right_bumper || (gamepad2.left_trigger != 0) || (gamepad2.right_trigger != 0))
+        {
+            if(gamepad1.left_bumper || gamepad2.left_bumper)
                 robot.leftIntakeMotor.setPower(1);
-            if(gamepad1.right_bumper)
+            if(gamepad1.right_bumper || gamepad2.right_bumper)
                 robot.rightIntakeMotor.setPower(1);
-            if(gamepad1.left_trigger != 0)
+            if(gamepad1.left_trigger != 0 || gamepad2.left_trigger != 0)
                 robot.leftIntakeMotor.setPower(-1);
-            if(gamepad1.right_trigger != 0)
+            if(gamepad1.right_trigger != 0 || gamepad2.right_trigger != 0)
                 robot.rightIntakeMotor.setPower(-1);
         }
         else
@@ -158,85 +168,57 @@ public class TeleOP extends OpMode
             robot.rightIntakeMotor.setPower(0);
         }
 
-        if(gamepad1.y || gamepad1.a)
+        if(gamepad1.y || gamepad1.a || gamepad2.y || gamepad2.a)
         {
-            if (gamepad1.y) {
-                robot.leftFoundationServo.setPower(1);
-                robot.rightFoundationServo.setPower(1);
+            if (gamepad1.y || gamepad2.y) {
+                robot.leftFoundationCRServo.setPower(1);
+                robot.rightFoundationCRServo.setPower(1);
             }
-            if (gamepad1.a) {
-                robot.leftFoundationServo.setPower(-1);
-                robot.rightFoundationServo.setPower(-1);
+            if (gamepad1.a || gamepad2.a) {
+                robot.leftFoundationCRServo.setPower(-1);
+                robot.rightFoundationCRServo.setPower(-1);
             }
         }
         else
         {
-            robot.leftFoundationServo.setPower(0);
-            robot.rightFoundationServo.setPower(0);
+            robot.leftFoundationCRServo.setPower(0);
+            robot.rightFoundationCRServo.setPower(0);
         }
-//        if(gamepad2.left_stick_y == 0)
+
+        if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition() && robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
+        {
+            robot.liftArmMotor.setPower(-(gamepad2.right_stick_y * 0.8));
+        }
+        else if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition())
+        {
+            robot.liftArmMotor.setPower(-0.4);
+        }
+        else if(robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
+        {
+            robot.liftArmMotor.setPower(0.4);
+        }
+        else
+        {
+            robot.liftArmMotor.setPower(0);
+        }
+
+//        if(gamepad2.left_bumper)
 //        {
-//            robot.liftArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//            if (robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition() && robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION) {
-//                if (!gamepad2.y || !gamepad2.a) {
-//                    robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORRESETPOSITION);
-//                    robot.liftArmMotor.setPower(1);
-//                }
-//
-//                if (gamepad2.y && !(robot.liftArmMotorLevelCount <= 5))
-//                    robot.liftArmMotorLevelCount++;
-//                if (gamepad2.a && !(robot.liftArmMotorLevelCount >= 0))
-//                    robot.liftArmMotorLevelCount--;
-//
-//                switch (robot.liftArmMotorLevelCount) {
-//                    default:
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORRESETPOSITION);
-//                        robot.liftArmMotor.setPower(1);//fix these powers they may need to reverse in order for the motor to go down
-//                        break;
-//
-//                    case (1):
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORLEVEL1POSITION);
-//                        robot.liftArmMotor.setPower(1);
-//                        break;
-//
-//                    case (2):
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORLEVEL2POSITION);
-//                        robot.liftArmMotor.setPower(1);
-//                        break;
-//
-//                    case (3):
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORLEVEL3POSITION);
-//                        robot.liftArmMotor.setPower(1);
-//                        break;
-//
-//                    case (4):
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORLEVEL4POSITION);
-//                        robot.liftArmMotor.setPower(1);
-//                        break;
-//
-//                    case (5):
-//                        robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORLEVEL5POSITION);
-//                        robot.liftArmMotor.setPower(1);
-//                        break;
-//                }
-//            }
-//            if (robot.LIFTARMMOTORMINPOSITION < robot.liftArmMotor.getCurrentPosition()) {
-//                robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORRESETPOSITION);
-//                robot.liftArmMotor.setPower(1);
-//            }
-//            if (robot.liftArmMotor.getCurrentPosition() < robot.LIFTARMMOTORMAXPOSITION) {
-//                robot.liftArmMotor.setTargetPosition(robot.LIFTARMMOTORRESETPOSITION);
-//                robot.liftArmMotor.setPower(-1);
-//            }
+//            robot.gripCRServo.setPower(1);
+//        }
+//        else if(gamepad2.right_bumper)
+//        {
+//            robot.gripCRServo.setPower(-1);
 //        }
 //        else
 //        {
-//            robot.liftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            robot.liftArmMotor.setPower(gamepad2.left_stick_y);
+//            robot.gripCRServo.setPower(0);
 //        }
 
-        robot.liftArmMotor.setPower(gamepad2.right_stick_y);
+        robot.rollCRServo.setPower(gamepad2.left_stick_x);
+        robot.pitchCRServo.setPower(gamepad2.left_stick_y);
+
+
 
         telemetry.addData("liftArmLevelCount", robot.liftArmMotorLevelCount);
         telemetry.addData("leftBackMotor", robot.leftBackMotor.getCurrentPosition());
@@ -244,9 +226,9 @@ public class TeleOP extends OpMode
         telemetry.addData("rightBackMotor", robot.rightBackMotor.getCurrentPosition());
         telemetry.addData("rightFrontMotor", robot.rightFrontMotor.getCurrentPosition());
         telemetry.addData("liftArmMotor", robot.liftArmMotor.getCurrentPosition());
-        telemetry.addData("pitchServo", robot.pitchServo.getPosition());
-        telemetry.addData("rollServo", robot.rollServo.getPosition());
-        telemetry.addData("gripServo", robot.gripServo.getPosition());
+//        telemetry.addData("pitchServo", robot.pitchServo.getPosition());
+//        telemetry.addData("rollServo", robot.rollServo.getPosition());
+//        telemetry.addData("gripServo", robot.gripServo.getPosition());
         telemetry.update();
     }
 

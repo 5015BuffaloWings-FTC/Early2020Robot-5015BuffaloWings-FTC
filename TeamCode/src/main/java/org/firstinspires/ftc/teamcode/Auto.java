@@ -2,6 +2,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.drm.DrmInfoRequest;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -45,7 +47,7 @@ public class Auto extends LinearOpMode {
     private ElapsedTime     runtime = new ElapsedTime();
 
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: REV Motor encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 0.69 ;     // This is < 1.0 if geared UP
+    static final double     DRIVE_GEAR_REDUCTION    = 0.416 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 3.5433;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
@@ -60,7 +62,7 @@ public class Auto extends LinearOpMode {
          * The init() method of the hardware class does all the work here
          */
         robot.robotHardwareMapInit(hardwareMap);
-
+        robot.autoInit();
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
@@ -87,12 +89,25 @@ public class Auto extends LinearOpMode {
         waitForStart();
 
         // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        //encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        //encoderDrive(TURN_SPEED,   20, -20, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, 12, 12, 5);
-        //encoderDrive(STRAFE_SPEED, -20, 4);
-        //encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        // Note: Reverse movement is obtained by setting a negative speed
+        robot.leftFoundationCRServo.setPower(-1);
+        robot.rightFoundationCRServo.setPower(-1);
+        sleep(1000);
+        robot.leftFoundationCRServo.setPower(0);
+        robot.rightFoundationCRServo.setPower(0);
+        encoderDrive(DRIVE_SPEED, -10, -10, 5);
+        encoderStrafe(0.5, 12,4);
+        encoderDrive(DRIVE_SPEED, -25, -25, 5);
+        encoderDrive(0.2, -10, -10, 5);
+        robot.leftFoundationCRServo.setPower(1);
+        robot.rightFoundationCRServo.setPower(1);
+        sleep(1000);
+        robot.leftFoundationCRServo.setPower(0);
+        robot.rightFoundationCRServo.setPower(0);
+        encoderDrive(0.3, 40, 40, 6);
+        encoderStrafe(-0.5, 35, 4);
+        encoderDrive(DRIVE_SPEED, -20, -20, 3);
+        encoderStrafe(-0.5, 10, 4);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -109,9 +124,9 @@ public class Auto extends LinearOpMode {
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
                              double timeoutS) {
-        robot.leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        robot.leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        robot.rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         int newLeftBackTarget;
@@ -196,16 +211,16 @@ public class Auto extends LinearOpMode {
             // Determine new target position, and pass to motor controller
             if(speed > 0)
             {
-                robot.leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+                robot.leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
                 robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-                robot.rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+                robot.rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
                 robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             }
             else if(speed < 0)
             {
-                robot.leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+                robot.leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
                 robot.leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-                robot.rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+                robot.rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
                 robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             }
 

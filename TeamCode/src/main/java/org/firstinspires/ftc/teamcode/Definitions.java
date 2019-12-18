@@ -26,21 +26,15 @@ public class Definitions
     public DcMotor leftIntakeMotor;
     public DcMotor rightIntakeMotor;
     public DcMotor liftArmMotor;
-    public Servo gripServo;
-    public Servo rollServo;
-    public Servo pitchServo;
-    public CRServo leftFoundationServo;
-    public CRServo rightFoundationServo;
+    public CRServo gripCRServo;
+    public CRServo rollCRServo;
+    public CRServo pitchCRServo;
+    public CRServo leftFoundationCRServo;
+    public CRServo rightFoundationCRServo;
 
     public int liftArmMotorLevelCount = 0;
-    public final int LIFTARMMOTORMAXPOSITION = 1500;
-    public final int LIFTARMMOTORMINPOSITION = 300;
-    public final int LIFTARMMOTORRESETPOSITION = 500;
-    public final int LIFTARMMOTORLEVEL1POSITION = 600;
-    public final int LIFTARMMOTORLEVEL2POSITION = 600;
-    public final int LIFTARMMOTORLEVEL3POSITION = 600;
-    public final int LIFTARMMOTORLEVEL4POSITION = 600;
-    public final int LIFTARMMOTORLEVEL5POSITION = 600;
+    public final int LIFTARMMOTORMAXPOSITION = 150;
+    public final int LIFTARMMOTORMINPOSITION = -15;
 
     public final double LEFTFOUNDATIONSERVODOWNPOSITION = 0;
     public final double RIGHTFOUNDATIONSERVODOWNPOSITION = 0;
@@ -61,11 +55,11 @@ public class Definitions
         leftIntakeMotor = Map.dcMotor.get("leftIntakeMotor");
         rightIntakeMotor = Map.dcMotor.get("rightIntakeMotor");
         liftArmMotor = Map.dcMotor.get("liftArmMotor");
-        gripServo = Map.servo.get("gripServo");
-        rollServo = Map.servo.get("rollServo");
-        pitchServo = Map.servo.get("pitchServo");
-        leftFoundationServo = Map.crservo.get("leftFoundationServo");
-        rightFoundationServo = Map.crservo.get("rightFoundationServo");
+        gripCRServo = Map.crservo.get("gripCRServo");
+        rollCRServo = Map.crservo.get("rollCRServo");
+        pitchCRServo = Map.crservo.get("pitchCRServo");
+        leftFoundationCRServo = Map.crservo.get("leftFoundationCRServo");
+        rightFoundationCRServo = Map.crservo.get("rightFoundationCRServo");
     }
 
     void teleOpInit()
@@ -86,13 +80,23 @@ public class Definitions
         rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        liftArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
         //This sets the robot to drive straight by default
-        leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFoundationServo.setDirection(CRServo.Direction.REVERSE);
+        liftArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFoundationCRServo.setDirection(CRServo.Direction.REVERSE);
+        pitchCRServo.setDirection(CRServo.Direction.REVERSE);
+    }
+
+    void autoInit()
+    {
+        leftFoundationCRServo.setDirection(CRServo.Direction.REVERSE);
     }
 
 }
