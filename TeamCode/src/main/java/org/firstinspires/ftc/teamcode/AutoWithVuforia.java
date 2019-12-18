@@ -26,29 +26,51 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 /**
- * This 2019-2020 OpMode illustrates the basics of using the Vuforia localizer to determine
- * positioning and orientation of robot on the SKYSTONE FTC field.
- * The code is structured as a LinearOpMode
  *
- * When images are located, Vuforia is able to determine the position and orientation of the
+ * This OpMode utilizes the SDK's example file "ConceptVuforiaSkyStoneNavigation.java" to locate skystone(s) during autonomous.
+ * Using this information our robot can make decisions on its optimum auto path.
+ *
+ * "When images are located, Vuforia is able to determine the position and orientation of the
  * image relative to the camera.  This sample code then combines that information with a
  * knowledge of where the target images are on the field, to determine the location of the camera.
+ * After gathering enough images, a final calculation then uses the location of the camera on the robot to determine the
+ * robot's location and orientation on the field."
  *
- * From the Audience perspective, the Red Alliance station is on the right and the
- * Blue Alliance Station is on the left.
-
- * Eight perimeter targets are distributed evenly around the four perimeter walls
- * Four Bridge targets are located on the bridge uprights.
- * Refer to the Field Setup manual for more specific location details
  *
- * A final calculation then uses the location of the camera on the robot to determine the
- * robot's location and orientation on the field.
+ * This OpMode utilizes the SDK's example file "PushbotAutoDriveByEncoder_Linear" to drive the robot.
+ * Using encoders on each drive wheel, the robot can accurately maneuver on the field. Only speed, distance, and timeout inputs
+ * are required for each "Step" in auto. There are other ways to perform encoder based moves, but this method is probably the simplest.
  *
+ * Java Doc References
  * @see VuforiaLocalizer
  * @see VuforiaTrackableDefaultListener
  * see  skystone/doc/tutorial/FTC_FieldCoordinateSystemDefinition.pdf
  *
+ *
+ * Auto Planning: This should be more indepth in the near future
+ *
+ * Red Foundation side:
+ *  Score Foundation
+ *  Park
+ *
+ * Red Skystone side:
+ *  Collect Skystone
+ *  Drive to platform
+ *  Score Skystone
+ *  Park
+ *
+ * Blue Foundation side:
+ *  Score Foundation
+ *  Park
+ *
+ * Blue Skystone side:
+ *  Collect Skystone
+ *  Drive to platform
+ *  Score Skystone
+ *  Park
  */
+
+
 
 @Autonomous(name="Vuforia Skystone Navigation")
 
