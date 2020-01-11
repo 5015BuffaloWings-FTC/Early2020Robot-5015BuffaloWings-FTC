@@ -136,7 +136,7 @@ public class TeleOP extends OpMode
     public void loop()
     {
         //Robot Movement
-        if(!gamepad1.b)
+        if(!gamepad2.b)
         {
             robot.leftBackMotor.setPower(Range.clip((gamepad1.left_stick_y + (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
             robot.leftFrontMotor.setPower(Range.clip((gamepad1.left_stick_y - (gamepad1.left_stick_x) - gamepad1.right_stick_x), -1, 1));
@@ -158,9 +158,9 @@ public class TeleOP extends OpMode
             if(gamepad1.right_bumper || gamepad2.right_bumper)
                 robot.rightIntakeMotor.setPower(1);
             if(gamepad1.left_trigger != 0 || gamepad2.left_trigger != 0)
-                robot.leftIntakeMotor.setPower(-1);
+                robot.leftIntakeMotor.setPower(-0.5);
             if(gamepad1.right_trigger != 0 || gamepad2.right_trigger != 0)
-                robot.rightIntakeMotor.setPower(-1);
+                robot.rightIntakeMotor.setPower(-0.5);
         }
         else
         {
@@ -184,24 +184,40 @@ public class TeleOP extends OpMode
             robot.leftFoundationCRServo.setPower(0);
             robot.rightFoundationCRServo.setPower(0);
         }
+        
 
-        if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition() && robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
+        if(gamepad2.dpad_down || gamepad2.dpad_up)
         {
-            robot.liftArmMotor.setPower(-(gamepad2.right_stick_y * 0.8));
-        }
-        else if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition())
-        {
-            robot.liftArmMotor.setPower(-0.4);
-        }
-        else if(robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
-        {
-            robot.liftArmMotor.setPower(0.4);
+            if(gamepad2.dpad_down)
+            {
+                robot.dragCRServo.setPower(1);
+            }
+            if(gamepad2.dpad_up)
+            {
+                robot.dragCRServo.setPower(-1);
+            }
         }
         else
-        {
-            robot.liftArmMotor.setPower(0);
-        }
+            robot.dragCRServo.setPower(0);
 
+
+//      if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition() && robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
+//        {
+//            robot.liftArmMotor.setPower(-(gamepad2.right_stick_y * 0.8));
+//        }
+//        else if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition())
+//        {
+//            robot.liftArmMotor.setPower(-0.4);
+//        }
+//        else if(robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
+//        {
+//            robot.liftArmMotor.setPower(0.4);
+//        }
+//        else
+//        {
+//            robot.liftArmMotor.setPower(0);
+//        }
+//
 //        if(gamepad2.left_bumper)
 //        {
 //            robot.gripCRServo.setPower(1);

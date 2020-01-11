@@ -1,71 +1,89 @@
 
-
 package org.firstinspires.ftc.teamcode;
 
-import android.drm.DrmInfoRequest;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
+import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+
 /**
- * This file illustrates the concept of driving a path based on encoder counts.
- * It uses the common Pushbot hardware class to define the drive on the robot.
- * The code is structured as a LinearOpMode
  *
- * The code REQUIRES that you DO have encoders on the wheels,
- *   otherwise you would use: PushbotAutoDriveByTime;
+ * This OpMode utilizes the SDK's example file "ConceptVuforiaSkyStoneNavigation.java" to locate skystone(s) during autonomous.
+ * Using this information our robot can make decisions on its optimum auto path.
  *
- *  This code ALSO requires that the drive Motors have been configured such that a positive
- *  power command moves them forwards, and causes the encoders to count UP.
+ * "When images are located, Vuforia is able to determine the position and orientation of the
+ * image relative to the camera.  This sample code then combines that information with a
+ * knowledge of where the target images are on the field, to determine the location of the camera.
+ * After gathering enough images, a final calculation then uses the location of the camera on the robot to determine the
+ * robot's location and orientation on the field."
  *
- *   The desired path in this example is:
- *   - Drive forward for 48 inches
- *   - Spin right for 12 Inches
- *   - Drive Backwards for 24 inches
- *   - Stop and close the claw.
  *
- *  The code is written using a method called: encoderDrive(speed, leftInches, rightInches, timeoutS)
- *  that performs the actual movement.
- *  This methods assumes that each movement is relative to the last stopping place.
- *  There are other ways to perform encoder based moves, but this method is probably the simplest.
- *  This code uses the RUN_TO_POSITION mode to enable the Motor controllers to generate the run profile
+ * This OpMode utilizes the SDK's example file "PushbotAutoDriveByEncoder_Linear" to drive the robot.
+ * Using encoders on each drive wheel, the robot can accurately maneuver on the field. Only speed, distance, and timeout inputs
+ * are required for each "Step" in auto. There are other ways to perform encoder based moves, but this method is probably the simplest.
  *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ * Java Doc References
+ * @see VuforiaLocalizer
+ * @see VuforiaTrackableDefaultListener
+ * see  skystone/doc/tutorial/FTC_FieldCoordinateSystemDefinition.pdf
+ *
+ *
+ * Auto Planning: This should be more indepth in the near future
+ *
+ * Red Foundation side:
+ *  Score Foundation
+ *  Park
+ *
+ * Red Skystone side:
+ *  Collect Skystone
+ *  Drive to platform
+ *  Score Skystone
+ *  Park
+ *
+ * Blue Foundation side:
+ *  Score Foundation
+ *  Park
+ *
+ * Blue Skystone side:
+ *  Collect Skystone
+ *  Drive to platform
+ *  Score Skystone
+ *  Park
  */
 
-@Autonomous(name="Auto")
+
+
+@Autonomous(name="Vuforia Skystone Navigation")
 
 public class Auto extends LinearOpMode {
 
-    /* Declare OpMode members. */
     Definitions robot = new Definitions();
-    private ElapsedTime     runtime = new ElapsedTime();
+    private ElapsedTime runtime = new ElapsedTime();
 
-    static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: REV Motor encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 0.416 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 3.5433;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
 
-    @Override
-    public void runOpMode() {
+    @Override public void runOpMode() {
 
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
         robot.robotHardwareMapInit(hardwareMap);
-        robot.autoInit();
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Resetting Encoders");    //
-        telemetry.update();
 
         robot.leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -76,41 +94,264 @@ public class Auto extends LinearOpMode {
         robot.leftFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightBackMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightFrontMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        /*
+//         * Retrieve the camera we are to use.
+//         *
+//         */
+//        robot.webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+//
+//        /*
+//         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+//         * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
+//         * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
+//         */
+//        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//
+//        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+//
+//        parameters.vuforiaLicenseKey = robot.VUFORIA_KEY;
+//
+//        /**
+//         * We also indicate which camera on the RC we wish to use.
+//         */
+//        parameters.cameraName = robot.webcamName;
+//
+//        //  Instantiate the Vuforia engine
+//        robot.vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//
+//        // Load the data sets for the trackable objects. These particular data
+//        // sets are stored in the 'assets' part of our application.
+//        VuforiaTrackables targetsSkyStone = this.robot.vuforia.loadTrackablesFromAsset("Skystone");
+//
+//        VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+//        stoneTarget.setName("Stone Target");
+//        VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
+//        blueRearBridge.setName("Blue Rear Bridge");
+//        VuforiaTrackable redRearBridge = targetsSkyStone.get(2);
+//        redRearBridge.setName("Red Rear Bridge");
+//        VuforiaTrackable redFrontBridge = targetsSkyStone.get(3);
+//        redFrontBridge.setName("Red Front Bridge");
+//        VuforiaTrackable blueFrontBridge = targetsSkyStone.get(4);
+//        blueFrontBridge.setName("Blue Front Bridge");
+//        VuforiaTrackable red1 = targetsSkyStone.get(5);
+//        red1.setName("Red Perimeter 1");
+//        VuforiaTrackable red2 = targetsSkyStone.get(6);
+//        red2.setName("Red Perimeter 2");
+//        VuforiaTrackable front1 = targetsSkyStone.get(7);
+//        front1.setName("Front Perimeter 1");
+//        VuforiaTrackable front2 = targetsSkyStone.get(8);
+//        front2.setName("Front Perimeter 2");
+//        VuforiaTrackable blue1 = targetsSkyStone.get(9);
+//        blue1.setName("Blue Perimeter 1");
+//        VuforiaTrackable blue2 = targetsSkyStone.get(10);
+//        blue2.setName("Blue Perimeter 2");
+//        VuforiaTrackable rear1 = targetsSkyStone.get(11);
+//        rear1.setName("Rear Perimeter 1");
+//        VuforiaTrackable rear2 = targetsSkyStone.get(12);
+//        rear2.setName("Rear Perimeter 2");
+//
+//        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+//        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+//        allTrackables.addAll(targetsSkyStone);
+//
+//        /**
+//         * In order for localization to work, we need to tell the system where each target is on the field, and
+//         * where the phone resides on the robot.  These specifications are in the form of <em>transformation matrices.</em>
+//         * Transformation matrices are a central, important concept in the math here involved in localization.
+//         * See <a href="https://en.wikipedia.org/wiki/Transformation_matrix">Transformation Matrix</a>
+//         * for detailed information. Commonly, you'll encounter transformation matrices as instances
+//         * of the {@link OpenGLMatrix} class.
+//         *
+//         * If you are standing in the Red Alliance Station looking towards the center of the field,
+//         *     - The X axis runs from your left to the right. (positive from the center to the right)
+//         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
+//         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
+//         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
+//         *
+//         * Before being transformed, each target image is conceptually located at the origin of the field's
+//         *  coordinate system (the center of the field), facing up.
+//         */
+//
+//        // Set the position of the Stone Target.  Since it's not fixed in position, assume it's at the field origin.
+//        // Rotated it to to face forward, and raised it to sit on the ground correctly.
+//        // This can be used for generic target-centric approach algorithms
+//        stoneTarget.setLocation(OpenGLMatrix
+//                .translation(0, 0, robot.stoneZ)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+//
+//        //Set the position of the bridge support targets with relation to origin (center of field)
+//        blueFrontBridge.setLocation(OpenGLMatrix
+//                .translation(-robot.bridgeX, robot.bridgeY, robot.bridgeZ)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 0, robot.bridgeRotY, robot.bridgeRotZ)));
+//
+//        blueRearBridge.setLocation(OpenGLMatrix
+//                .translation(-robot.bridgeX, robot.bridgeY,robot.bridgeZ)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 0, -robot.bridgeRotY, robot.bridgeRotZ)));
+//
+//        redFrontBridge.setLocation(OpenGLMatrix
+//                .translation(-robot.bridgeX, -robot.bridgeY, robot.bridgeZ)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 0, -robot.bridgeRotY, 0)));
+//
+//        redRearBridge.setLocation(OpenGLMatrix
+//                .translation(robot.bridgeX, -robot.bridgeY, robot.bridgeZ)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 0, robot.bridgeRotY, 0)));
+//
+//        //Set the position of the perimeter targets with relation to origin (center of field)
+//        red1.setLocation(OpenGLMatrix
+//                .translation(robot.quadField, -robot.halfField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+//
+//        red2.setLocation(OpenGLMatrix
+//                .translation(-robot.quadField, -robot.halfField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+//
+//        front1.setLocation(OpenGLMatrix
+//                .translation(-robot.halfField, -robot.quadField,robot. mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+//
+//        front2.setLocation(OpenGLMatrix
+//                .translation(-robot.halfField, robot.quadField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
+//
+//        blue1.setLocation(OpenGLMatrix
+//                .translation(-robot.quadField, robot.halfField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+//
+//        blue2.setLocation(OpenGLMatrix
+//                .translation(robot.quadField, robot.halfField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+//
+//        rear1.setLocation(OpenGLMatrix
+//                .translation(robot.halfField, robot.quadField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+//
+//        rear2.setLocation(OpenGLMatrix
+//                .translation(robot.halfField, -robot.quadField, robot.mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+//
+//        //
+//        // Create a transformation matrix describing where the phone is on the robot.
+//        //
+//        // NOTE !!!!  It's very important that you turn OFF your phone's Auto-Screen-Rotation option.
+//        // Lock it into Portrait for these numbers to work.
+//        //
+//        // Info:  The coordinate frame for the robot looks the same as the field.
+//        // The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
+//        // Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
+//        //
+//        // The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
+//        // pointing to the LEFT side of the Robot.
+//        // The two examples below assume that the camera is facing forward out the front of the robot.
+//
+//        // We need to rotate the camera around it's long axis to bring the correct camera forward.
+//        if (robot.CAMERA_CHOICE == BACK) {
+//            robot.phoneYRotate = -90;
+//        } else {
+//            robot.phoneYRotate = 90;
+//        }
+//
+//        // Rotate the phone vertical about the X axis if it's in portrait mode
+//        if (robot.PHONE_IS_PORTRAIT) {
+//            robot.phoneXRotate = 90 ;
+//        }
+//
+//        // Next, translate the camera lens to where it is on the robot.
+//        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+//        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * robot.mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+//        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * robot.mmPerInch;   // eg: Camera is 8 Inches above ground
+//        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+//
+//        OpenGLMatrix robotFromCamera = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, robot.phoneYRotate, robot.phoneZRotate, robot.phoneXRotate));
+//
+//        /**  Let all the trackable listeners know where the phone is.  */
+//        for (VuforiaTrackable trackable : allTrackables) {
+//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+//        }
 
-        // Send telemetry message to indicate successful Encoder reset
-        telemetry.addData("Path0",  "Starting at %7d :%7d",
-                robot.leftBackMotor.getCurrentPosition(),
-                robot.leftFrontMotor.getCurrentPosition());
-                robot.rightBackMotor.getCurrentPosition();
-                robot.rightFrontMotor.getCurrentPosition();
-        telemetry.update();
+        // WARNING:
+        // In this sample, we do not wait for PLAY to be pressed.  Target Tracking is started immediately when INIT is pressed.
+        // This sequence is used to enable the new remote DS Camera Preview feature to be used with this sample.
+        // CONSEQUENTLY do not put any driving commands in this loop.
+        // To restore the normal opmode structure, just un-comment the following line:
 
-        // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative speed
-        robot.leftFoundationCRServo.setPower(-1);
-        robot.rightFoundationCRServo.setPower(-1);
-        sleep(1000);
-        robot.leftFoundationCRServo.setPower(0);
-        robot.rightFoundationCRServo.setPower(0);
-        encoderDrive(DRIVE_SPEED, -10, -10, 5);
-        encoderStrafe(0.5, 12,4);
-        encoderDrive(DRIVE_SPEED, -25, -25, 5);
-        encoderDrive(0.2, -10, -10, 5);
-        robot.leftFoundationCRServo.setPower(1);
-        robot.rightFoundationCRServo.setPower(1);
-        sleep(1000);
-        robot.leftFoundationCRServo.setPower(0);
-        robot.rightFoundationCRServo.setPower(0);
-        encoderDrive(0.3, 40, 40, 6);
-        encoderStrafe(-0.5, 35, 4);
-        encoderDrive(DRIVE_SPEED, -20, -20, 3);
-        encoderStrafe(-0.5, 10, 4);
+        // Note: To use the remote camera preview:
+        // AFTER you hit Init on the Driver Station, use the "options menu" to select "Camera Stream"
+        // Tap the preview window to receive a fresh image.
 
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
+//        //Red Facing bridge skystone side
+        encoderStrafe(0.3, 20,4);//right
+        encoderDrive(0.4,15,15,3);//forward
+
+        //red foundation
+//        encoderStrafe(-0.3,9,3);
+//        encoderDrive(0.4,-20,-20,3);
+//        robot.leftFoundationCRServo.setPower(1);
+//        robot.rightFoundationCRServo.setPower(-1);
+//        sleep(2000);
+//        robot.leftFoundationCRServo.setPower(0);
+//        robot.rightFoundationCRServo.setPower(0);
+//        sleep(1000);
+//        encoderDrive(0.4,25,25,3);
+//        robot.leftFoundationCRServo.setPower(0);
+//        robot.rightFoundationCRServo.setPower(0);
+//        encoderDrive(0.4,-5,-5,3);
+//        encoderStrafe(0.3, 40, 5);
+
+//        //blue skystone
+//        encoderStrafe(-0.3,9,3);
+//        encoderDrive(0.4,-20,-20,3);
+//        robot.dragCRServo.setPower(-1);
+//        sleep(1500);
+//        robot.dragCRServo.setPower(0);
+//        encoderDrive(0.5, 10, 10, 2);
+
+
+//        targetsSkyStone.activate();
+//        while(!isStopRequested() && !robot.isAlignedWithSkystone) {
+//            // check all the trackable targets to see which one (if any) is visible.
+//            robot.targetVisible = false;
+//            for (VuforiaTrackable trackable : allTrackables) {
+//                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+//                    telemetry.addData("Visible Target", trackable.getName());
+//                    robot.targetVisible = true;
+//
+//                    // getUpdatedRobotLocation() will return null if no new information is available since
+//                    // the last time that call was made, or if the trackable is not currently visible.
+//                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+//                    if (robotLocationTransform != null) {
+//                        robot.lastLocation = robotLocationTransform;
+//                    }
+//                    break;
+//                }
+//            }
+//
+//            // Provide feedback as to where the robot is located (if we know).
+//            if (robot.targetVisible) {
+//                // express position (translation) of robot in inches.
+//                VectorF translation = robot.lastLocation.getTranslation();
+//                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//                        translation.get(0) / robot.mmPerInch, translation.get(1) / robot.mmPerInch, translation.get(2) / robot.mmPerInch);
+//
+//                // express the rotation of the robot in degrees.
+//                Orientation rotation = Orientation.getOrientation(robot.lastLocation, EXTRINSIC, XYZ, DEGREES);
+//                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+//                if (-2 <= (translation.get(1) / robot.mmPerInch) && (translation.get(1) / robot.mmPerInch) <= 2) {
+//                    robot.isAlignedWithSkystone = true;
+//                }
+//            } else {
+//                telemetry.addData("Visible Target", "none");
+//            }
+//            telemetry.update();
+//        }
+//
+//
+//        // Disable Tracking when we are done;
+//        targetsSkyStone.deactivate(); //20 to 22 inches from stone
     }
 
     /*
@@ -138,10 +379,10 @@ public class Auto extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftBackTarget = robot.leftBackMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-            newLeftFrontTarget = robot.leftFrontMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-            newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
-            newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+            newLeftBackTarget = robot.leftBackMotor.getCurrentPosition() + (int)(leftInches * robot.COUNTS_PER_INCH);
+            newLeftFrontTarget = robot.leftFrontMotor.getCurrentPosition() + (int)(leftInches * robot.COUNTS_PER_INCH);
+            newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(rightInches * robot.COUNTS_PER_INCH);
+            newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(rightInches * robot.COUNTS_PER_INCH);
             robot.leftBackMotor.setTargetPosition(newLeftBackTarget);
             robot.leftFrontMotor.setTargetPosition(newLeftFrontTarget);
             robot.rightBackMotor.setTargetPosition(newRightBackTarget);
@@ -224,10 +465,10 @@ public class Auto extends LinearOpMode {
                 robot.rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             }
 
-            newLeftBackTarget = robot.leftBackMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-            newLeftFrontTarget = robot.leftFrontMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-            newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-            newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newLeftBackTarget = robot.leftBackMotor.getCurrentPosition() + (int)(distance * robot.COUNTS_PER_INCH);
+            newLeftFrontTarget = robot.leftFrontMotor.getCurrentPosition() + (int)(distance * robot.COUNTS_PER_INCH);
+            newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(distance * robot.COUNTS_PER_INCH);
+            newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(distance * robot.COUNTS_PER_INCH);
             robot.leftBackMotor.setTargetPosition(newLeftBackTarget);
             robot.leftFrontMotor.setTargetPosition(newLeftFrontTarget);
             robot.rightBackMotor.setTargetPosition(newRightBackTarget);
