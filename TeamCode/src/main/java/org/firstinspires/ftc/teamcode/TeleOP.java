@@ -184,7 +184,6 @@ public class TeleOP extends OpMode
             robot.leftFoundationCRServo.setPower(0);
             robot.rightFoundationCRServo.setPower(0);
         }
-        
 
         if(gamepad2.dpad_down || gamepad2.dpad_up)
         {
@@ -201,50 +200,10 @@ public class TeleOP extends OpMode
             robot.dragCRServo.setPower(0);
 
 
-//      if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition() && robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
-//        {
-//            robot.liftArmMotor.setPower(-(gamepad2.right_stick_y * 0.8));
-//        }
-//        else if(robot.LIFTARMMOTORMINPOSITION <= robot.liftArmMotor.getCurrentPosition())
-//        {
-//            robot.liftArmMotor.setPower(-0.4);
-//        }
-//        else if(robot.liftArmMotor.getCurrentPosition() <= robot.LIFTARMMOTORMAXPOSITION)
-//        {
-//            robot.liftArmMotor.setPower(0.4);
-//        }
-//        else
-//        {
-//            robot.liftArmMotor.setPower(0);
-//        }
-//
-//        if(gamepad2.left_bumper)
-//        {
-//            robot.gripCRServo.setPower(1);
-//        }
-//        else if(gamepad2.right_bumper)
-//        {
-//            robot.gripCRServo.setPower(-1);
-//        }
-//        else
-//        {
-//            robot.gripCRServo.setPower(0);
-//        }
-
-        robot.rollCRServo.setPower(gamepad2.left_stick_x);
-        robot.pitchCRServo.setPower(gamepad2.left_stick_y);
-
-
-
-        telemetry.addData("liftArmLevelCount", robot.liftArmMotorLevelCount);
         telemetry.addData("leftBackMotor", robot.leftBackMotor.getCurrentPosition());
         telemetry.addData("leftFrontMotor", robot.leftFrontMotor.getCurrentPosition());
         telemetry.addData("rightBackMotor", robot.rightBackMotor.getCurrentPosition());
         telemetry.addData("rightFrontMotor", robot.rightFrontMotor.getCurrentPosition());
-        telemetry.addData("liftArmMotor", robot.liftArmMotor.getCurrentPosition());
-//        telemetry.addData("pitchServo", robot.pitchServo.getPosition());
-//        telemetry.addData("rollServo", robot.rollServo.getPosition());
-//        telemetry.addData("gripServo", robot.gripServo.getPosition());
         telemetry.update();
     }
 

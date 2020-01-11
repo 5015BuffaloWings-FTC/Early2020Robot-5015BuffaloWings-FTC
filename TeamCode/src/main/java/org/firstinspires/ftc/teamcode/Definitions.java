@@ -29,24 +29,10 @@ public class Definitions
     public DcMotor rightFrontMotor;
     public DcMotor leftIntakeMotor;
     public DcMotor rightIntakeMotor;
-    public DcMotor liftArmMotor;
-    public CRServo gripCRServo;
-    public CRServo rollCRServo;
-    public CRServo pitchCRServo;
     public CRServo leftFoundationCRServo;
     public CRServo rightFoundationCRServo;
     public CRServo dragCRServo;
 
-    public int liftArmMotorLevelCount = 0;
-    public final int LIFTARMMOTORMAXPOSITION = 150;
-    public final int LIFTARMMOTORMINPOSITION = -15;
-
-    public final double LEFTFOUNDATIONSERVODOWNPOSITION = 0;
-    public final double RIGHTFOUNDATIONSERVODOWNPOSITION = 0;
-    public final double LEFTFOUNDATIONSERVORESETPOSITION = 0.5;
-    public final double RIGHTFOUNDATIONSERVORESETPOSITION = 0.5;
-
-    public final double WHEELDIAMETER = 3.54331;
 
     final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;//Selects Webcam as default camera
     final boolean PHONE_IS_PORTRAIT = false;//Keeps the phone orientated Vertically. This was suggested by the SDK
@@ -80,7 +66,7 @@ public class Definitions
 
     final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // eg: TETRIX Motor Encoder
     final double     DRIVE_GEAR_REDUCTION    = 0.69 ;     // This is < 1.0 if geared UP
-    final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    final double     WHEEL_DIAMETER_INCHES   = 3.54331 ;     // For figuring circumference
     final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     final double     DRIVE_SPEED             = 0.6;
@@ -98,10 +84,6 @@ public class Definitions
         rightBackMotor = Map.dcMotor.get("rightBackMotor");
         leftIntakeMotor = Map.dcMotor.get("leftIntakeMotor");
         rightIntakeMotor = Map.dcMotor.get("rightIntakeMotor");
-        liftArmMotor = Map.dcMotor.get("liftArmMotor");
-        gripCRServo = Map.crservo.get("gripCRServo");
-        rollCRServo = Map.crservo.get("rollCRServo");
-        pitchCRServo = Map.crservo.get("pitchCRServo");
         leftFoundationCRServo = Map.crservo.get("leftFoundationCRServo");
         rightFoundationCRServo = Map.crservo.get("rightFoundationCRServo");
         dragCRServo = Map.crservo.get("dragCRServo");
@@ -109,24 +91,27 @@ public class Definitions
 
     void teleOpInit()
     {
+        //Stop and reset motor encoders to ensure consistent values
         leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftIntakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightIntakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        //Sets the motors to run through driver input instead of running to an encoder position
         leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        liftArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        //Sets each motor to hold its current position while having zero power set
+        leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightIntakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //This sets the robot to drive straight by default
         leftBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -134,15 +119,13 @@ public class Definitions
         rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        liftArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFoundationCRServo.setDirection(CRServo.Direction.REVERSE);
-        pitchCRServo.setDirection(CRServo.Direction.REVERSE);
 
     }
 
     void autoInit()
     {
-        leftFoundationCRServo.setDirection(CRServo.Direction.REVERSE);
+
     }
 
 
