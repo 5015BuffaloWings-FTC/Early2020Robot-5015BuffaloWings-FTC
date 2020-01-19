@@ -36,10 +36,10 @@ import com.qualcomm.robotcore.util.Range;
  *   \________/                                \_________/
  *                         Gamepad 1:
  *
- * gamepad1.dpad_up :
+ * gamepad1.dpad_up : Lower left and right foundation servos
  * gamepad1.dpad_left :
  * gamepad1.dpad_right :
- * gamepad1.dpad_down :
+ * gamepad1.dpad_down : Raise left and right foundation servos
  * gamepad1.a :
  * gamepad1.x :
  * gamepad1.b :
@@ -112,7 +112,7 @@ public class TeleOP extends OpMode
     public void init()
     {
         robot.robotHardwareMapInit(hardwareMap);
-        robot.teleOpInit();
+        robot.driveInit();
     }
 
     /*

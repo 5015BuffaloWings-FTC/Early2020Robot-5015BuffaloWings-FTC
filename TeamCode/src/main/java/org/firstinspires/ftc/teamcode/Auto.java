@@ -84,7 +84,7 @@ public class Auto extends LinearOpMode {
     @Override public void runOpMode() {
 
         robot.robotHardwareMapInit(hardwareMap);
-        robot.teleOpInit();
+        robot.driveInit();
         /*
          * Retrieve the camera we are to use.
          *
@@ -116,7 +116,7 @@ public class Auto extends LinearOpMode {
         VuforiaTrackables targetsSkyStone = this.robot.vuforia.loadTrackablesFromAsset("Skystone");
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
-        stoneTarget.setName("Stone Target");
+        stoneTarget.setName("SkyStone");
 
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
@@ -229,27 +229,23 @@ public class Auto extends LinearOpMode {
 //        robot.dragCRServo.setPower(0);
 //        encoderDrive(0.5, 10, 10, 2);
 
-        encoderDrive(0.4, -10,-10,3);
+        encoderDrive(0.4, -4,-4,3);
 
         targetsSkyStone.activate();
         while(!isStopRequested()&& !robot.isAlignedWithSkystone) {
-            encoderStrafe(-0.3, 5, 1);
-            sleep(100);
             // check all the trackable targets to see which one (if any) is visible.
             robot.targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
-                if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    robot.targetVisible = true;
+            if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
+                telemetry.addData("Visible Target", stoneTarget.getName());
+                robot.targetVisible = true;
 
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        robot.lastLocation = robotLocationTransform;
-                    }
-                    break;
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    robot.lastLocation = robotLocationTransform;
                 }
+                break;
             }
 
             // Provide feedback as to where the robot is located (if we know).
@@ -262,27 +258,33 @@ public class Auto extends LinearOpMode {
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(robot.lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-                if (-2 <= (translation.get(1) / robot.mmPerInch) && (translation.get(1) / robot.mmPerInch) <= 2) {
-                    robot.isAlignedWithSkystone = true;
+                if (0 < (translation.get(1) / robot.mmPerInch)) {
+                    robot.stoneCenter = true;
                 }
+                else if((translation.get(1) / robot.mmPerInch) < 0)
+                {
+                    robot.stoneLeft = true;
+                }
+                else
+                    robot.stoneRight = true;
             } else {
                 telemetry.addData("Visible Target", "none");
+                telemetry.addData("Stone Left: ", robot.stoneLeft);
+                telemetry.addData("Stone Center: ", robot.stoneCenter);
+                telemetry.addData("Stone Right: ", robot.stoneRight);
             }
             telemetry.update();
+
         }
-        encoderDrive(0.4,-10,-10,3);
-        robot.dragCRServo.setPower(-1);
-        sleep(1500);
-        robot.dragCRServo.setPower(0);
-        encoderDrive(0.5, 10, 10, 2);
-        encoderDrive(0.4, -13.5,13.5,2);
-        encoderStrafe(-0.3, 10, 3);
-        encoderDrive(0.5, -10, -10, 3);
-
-
 
         // Disable Tracking when we are done;
         targetsSkyStone.deactivate(); //20 to 22 inches from stone
+        if(robot.stoneLeft)
+            encoderStrafe(-0.5, 20, 2);
+        if(robot.stoneCenter)
+            encoderDrive(robot.DRIVE_SPEED, 20, 20, 2);
+        if(robot.stoneRight)
+            encoderStrafe(0.5, 20, 2);
     }
 
     /*

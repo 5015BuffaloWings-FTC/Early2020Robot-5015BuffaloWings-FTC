@@ -18,11 +18,33 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * In this case that robot is a Mecanum driven Robot.
  * Mecanum robots utilize 4 motor driven wheels.
  *
+ *
+ *
+ * Software 1 min and 45 second Elevator Speech:
+ * - Github:
+ *      - We utilize an open source coding platform known as github. Github adds value to our team in 3 ways:
+ *          - Version Control:
+ *              - Allows us to keep track of multiple files, backup our code, and share it with the world
+ *          - Colaboration:
+ *              - Allow us to make our code open source to the interwebs.
+ *          - Backup:
+ *              - We will never lose a file again
+ * - Computer vision
+ *      - Vuforia: 
+ * - Definition File
+ * - Auto
+ * - Teleop
+ * - Past failures
+ *      - Tensorflow
+ *
  */
 public class Definitions
 {
     public static final String VUFORIA_KEY = "AXtFr3H/////AAABmdesNJ4h10A/jsUUQYg3iZYNuybZP+xSL1rgtKZGv/eza25sSNgwWw0ZFXNVFcMED6F3OQ6RHuFGYMB58rsaDkJ5GbM7roSrP1xO0cKgkqfiBNrtN5Mi0CCSKoTKpyAuT6be8LQofpRgjpqevCkljaPPpUVVx9KWkYk7PE39YuABgbqJbh+9vHKYsfAIETxvXXxmY6rgqa84SE7BUVCB/9XeITffoYPHbr+LSM/NOps2wpc0TAIHswCBDoM5+5xLKVteViUng6d9vdWClFwFkq6VJ1vgiQxvS7i4EklqDbcJlvoqtg2RY7Kb5fc6qYml8Ab5aqJJ+Uj+ATBKlajN2jp1FhNUWMand/JgNj9sUsS6";
 
+    public boolean stoneLeft = false;
+    public boolean stoneCenter = false;
+    public boolean stoneRight = false;
     public DcMotor leftBackMotor;
     public DcMotor leftFrontMotor;
     public DcMotor rightBackMotor;
@@ -89,7 +111,7 @@ public class Definitions
         dragCRServo = Map.crservo.get("dragCRServo");
     }
 
-    void teleOpInit()
+    void driveInit()
     {
         //Stop and reset motor encoders to ensure consistent values
         leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
