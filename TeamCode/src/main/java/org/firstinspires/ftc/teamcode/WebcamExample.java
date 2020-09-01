@@ -46,7 +46,6 @@ import org.opencv.core.*;
 public class WebcamExample extends LinearOpMode
 {
     OpenCvCamera webcam;
-    SamplePipeline currentPipeline;
 
     @Override
     public void runOpMode()
@@ -77,8 +76,7 @@ public class WebcamExample extends LinearOpMode
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        currentPipeline = new SamplePipeline();
-        webcam.setPipeline(currentPipeline);
+        webcam.setPipeline(new SamplePipeline());
 
         /*
          * Tell the webcam to start streaming images to us! Note that you must make sure
@@ -101,8 +99,6 @@ public class WebcamExample extends LinearOpMode
         /*
          * Wait for the user to press start on the Driver Station
          */
-
-
         waitForStart();
 
         while (opModeIsActive())
@@ -110,8 +106,6 @@ public class WebcamExample extends LinearOpMode
             /*
              * Send some stats to the telemetry
              */
-            telemetry.addData("Number of Contours", currentPipeline.getNumContoursFound());
-            telemetry.addData("Position of Skystone", currentPipeline.getContourXAverage());
             telemetry.addData("Frame Count", webcam.getFrameCount());
             telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
             telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
@@ -188,8 +182,6 @@ public class WebcamExample extends LinearOpMode
      */
     static class SamplePipeline extends OpenCvPipeline
     {
-        int contourXSum = 0;
-        int contourXAverage = 0;
         Mat yCbCrChan2Mat = new Mat();
         Mat thresholdMat = new Mat();
         Mat contoursOnFrameMat = new Mat();
@@ -292,25 +284,17 @@ public class WebcamExample extends LinearOpMode
             }
 
             //              This should average the location of the rectangles drawn around each contour. This should give us an aproximate location of the cube
-            //private double averageLocationOfContours(contoursList  contours) {
+//            private double averageLocationOfContours(contoursList  contours) {
+//            Integer sum = 0;
+//            if(!marks.isEmpty()) {
+//                for (Integer mark : marks) {
+//                    sum += mark;
+//                }
+//                return sum.doubleValue() / marks.size();
+//            }
+//            return sum;
 
-            contourXSum = 0;
-            contourXAverage = 0;
-            for(int i = 0; i < contours.size(); i++)
-            {
-                contourXSum += contours.get(i).x;
-            }
-            if (contours.size() == 0)
-                return findContoursInput;
-
-            contourXAverage = contourXSum / contours.size();
-
-            return cvErodeOutput;
-        }
-
-        public int getContourXAverage()
-        {
-            return contourXAverage;
+            return findContoursInput;
         }
 
         /**
@@ -513,6 +497,5 @@ public class WebcamExample extends LinearOpMode
         {
             return numContoursFound;
         }
-
     }
 }
