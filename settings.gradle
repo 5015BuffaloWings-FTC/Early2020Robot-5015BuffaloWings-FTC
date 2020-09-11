@@ -1,2 +1,5 @@
-include ':FtcRobotController'
-include ':TeamCode'
+rootProject.name = 'road-runner'
+include ':core'
+include ':gui'
+include ':plugin'
+include ':custom-detekt-rules'
